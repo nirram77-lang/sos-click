@@ -1,0 +1,27 @@
+{
+  "short_name": "SOS Click",
+  "name": "SOS Click - Emergency Medical Card",
+  "description": "Your emergency medical information accessible from lock screen",
+  "icons": [
+    {
+      "src": "logo-sos.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo-sos.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#FF8C00",
+  "background_color": "#0d1829",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "he",
+  "categories": ["medical", "health", "emergency"]
+}
