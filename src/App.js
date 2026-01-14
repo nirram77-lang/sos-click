@@ -290,33 +290,21 @@ function App() {
           </div>
         </div>
 
-        {/* Hero Logo Section - Big & Beautiful */}
+        {/* Hero Logo - Clean, No Circle */}
         {currentStep.icon === '🆘' && (
           <div style={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            paddingTop: '40px',
-            paddingBottom: '20px'
+            paddingTop: '30px',
+            paddingBottom: '10px'
           }}>
-            <div style={{
-              width: '220px',
-              height: '220px',
-              borderRadius: '50%',
-              background: 'linear-gradient(145deg, #1a2f4d 0%, #0d1829 100%)',
-              border: '3px solid rgba(255,140,0,0.4)',
-              boxShadow: '0 0 80px rgba(255,140,0,0.35), inset 0 0 40px rgba(255,140,0,0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <img src="/logo-sos.png" alt="SOS Click" style={{ 
-                width: '180px', 
-                height: '180px', 
-                objectFit: 'contain',
-                filter: 'drop-shadow(0 0 20px rgba(255,140,0,0.3))'
-              }} />
-            </div>
+            <img src="/logo-sos.png" alt="SOS Click" style={{ 
+              width: '250px', 
+              height: '250px', 
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 0 40px rgba(255,140,0,0.4))'
+            }} />
           </div>
         )}
 
