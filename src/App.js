@@ -267,8 +267,8 @@ function App() {
 
     return (
       <div className="min-h-screen flex flex-col" style={{ 
-        direction: language === 'he' ? 'rtl' : 'ltr',
-        background: '#0d1829'
+        background: '#0d1829',
+        direction: 'ltr'
       }}>
         {/* Progress Bar */}
         <div className="p-4">
@@ -286,7 +286,7 @@ function App() {
         </div>
 
         {/* Content */}
-        <div className="flex-1 flex flex-col items-center justify-center p-6">
+        <div className="flex-1 flex flex-col items-center justify-center p-6" style={{ direction: language === 'he' ? 'rtl' : 'ltr' }}>
           {/* Icon */}
           <div className="w-28 h-28 rounded-full flex items-center justify-center mb-6" style={{
             background: 'linear-gradient(145deg, #162544 0%, #0d1829 100%)',
@@ -1076,8 +1076,8 @@ function App() {
     <div style={{ 
       background: '#0d1829', 
       minHeight: '100vh',
-      display: 'flex',
-      justifyContent: 'center'
+      width: '100%',
+      overflow: 'hidden'
     }}>
       {/* Mobile Container - Centered */}
       <div style={{
@@ -1086,7 +1086,8 @@ function App() {
         minHeight: '100vh',
         position: 'relative',
         background: '#0d1829',
-        boxShadow: '0 0 60px rgba(255,140,0,0.15)'
+        boxShadow: '0 0 60px rgba(255,140,0,0.15)',
+        margin: '0 auto'
       }}>
         {menuOpen && <MenuScreen />}
         {renderScreen()}
