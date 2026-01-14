@@ -266,56 +266,86 @@ function App() {
     const isFirstStep = onboardingStep === 0;
 
     return (
-      <div className="min-h-screen flex flex-col" style={{ 
+      <div style={{ 
         background: '#0d1829',
-        direction: 'ltr'
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column'
       }}>
         {/* Progress Bar */}
-        <div className="p-4">
-          <div className="flex gap-2">
+        <div style={{ padding: '16px' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
             {steps.map((_, idx) => (
               <div 
                 key={idx} 
-                className="flex-1 h-1 rounded-full transition-all"
                 style={{ 
-                  background: idx <= onboardingStep ? '#FF8C00' : 'rgba(255,140,0,0.2)'
+                  flex: 1,
+                  height: '4px',
+                  borderRadius: '2px',
+                  background: idx <= onboardingStep ? '#FF8C00' : 'rgba(255,140,0,0.2)',
+                  transition: 'all 0.3s'
                 }}
               />
             ))}
           </div>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 flex flex-col items-center justify-center p-6" style={{ direction: language === 'he' ? 'rtl' : 'ltr' }}>
-          {/* Icon */}
-          <div className="w-28 h-28 rounded-full flex items-center justify-center mb-6" style={{
+        {/* Content - All Centered */}
+        <div style={{ 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          padding: '24px',
+          textAlign: 'center'
+        }}>
+          {/* Icon/Logo */}
+          <div style={{
+            width: '120px',
+            height: '120px',
+            borderRadius: '50%',
             background: 'linear-gradient(145deg, #162544 0%, #0d1829 100%)',
             border: '2px solid rgba(255,140,0,0.5)',
-            boxShadow: '0 0 50px rgba(255,140,0,0.3)'
+            boxShadow: '0 0 50px rgba(255,140,0,0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '24px'
           }}>
             {currentStep.icon === '🆘' ? (
-              <img src="/logo-sos.png" alt="SOS Click" className="w-20 h-20 object-contain" />
+              <img src="/logo-sos.png" alt="SOS Click" style={{ width: '90px', height: '90px', objectFit: 'contain' }} />
             ) : (
-              <span className="text-5xl">{currentStep.icon}</span>
+              <span style={{ fontSize: '48px' }}>{currentStep.icon}</span>
             )}
           </div>
 
           {/* Title */}
-          <h1 className="text-2xl font-black mb-2 text-center" style={{ color: '#FF8C00' }}>
+          <h1 style={{ 
+            color: '#FF8C00', 
+            fontSize: '28px', 
+            fontWeight: 900, 
+            marginBottom: '12px',
+            direction: language === 'he' ? 'rtl' : 'ltr'
+          }}>
             {currentStep.title}
           </h1>
 
-          {/* Welcome Step */}
+          {/* Welcome Step Text */}
           {isFirstStep && (
-            <>
-              <p className="text-lg text-white/80 mb-2 text-center">{currentStep.subtitle}</p>
-              <p className="text-sm text-white/60 text-center max-w-xs">{currentStep.description}</p>
-            </>
+            <div style={{ direction: language === 'he' ? 'rtl' : 'ltr' }}>
+              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '18px', marginBottom: '8px' }}>
+                {currentStep.subtitle}
+              </p>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', maxWidth: '280px' }}>
+                {currentStep.description}
+              </p>
+            </div>
           )}
 
           {/* Form Steps */}
           {currentStep.fields && (
-            <div className="w-full max-w-sm space-y-4 mt-4">
+            <div style={{ width: '100%', maxWidth: '320px', marginTop: '16px', direction: language === 'he' ? 'rtl' : 'ltr' }}>
               {currentStep.fields.map(field => (
                 <input
                   key={field}
@@ -323,11 +353,16 @@ function App() {
                   value={onboardingData[field]}
                   onChange={(e) => setOnboardingData({...onboardingData, [field]: e.target.value})}
                   placeholder={fieldLabels[language][field]}
-                  className="w-full p-4 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-orange-500"
                   style={{
+                    width: '100%',
+                    padding: '16px',
+                    borderRadius: '12px',
+                    fontSize: '16px',
                     background: 'rgba(255,255,255,0.05)',
                     border: '1px solid rgba(255,140,0,0.3)',
-                    color: 'white'
+                    color: 'white',
+                    marginBottom: '12px',
+                    outline: 'none'
                   }}
                 />
               ))}
@@ -335,15 +370,21 @@ function App() {
           )}
         </div>
 
-        {/* Buttons */}
-        <div className="p-6 space-y-3">
+        {/* Buttons - Fixed at Bottom */}
+        <div style={{ padding: '24px' }}>
           <button
             onClick={handleNext}
-            className="w-full py-4 rounded-xl font-bold text-lg transition-all active:scale-95"
             style={{
+              width: '100%',
+              padding: '16px',
+              borderRadius: '12px',
+              fontWeight: 700,
+              fontSize: '18px',
               background: 'linear-gradient(135deg, #FF8C00 0%, #e67e00 100%)',
               boxShadow: '0 0 30px rgba(255,140,0,0.4)',
-              color: '#0d1829'
+              color: '#0d1829',
+              border: 'none',
+              cursor: 'pointer'
             }}
           >
             {isLastStep 
@@ -355,8 +396,16 @@ function App() {
           {!isFirstStep && (
             <button
               onClick={handleSkip}
-              className="w-full py-3 rounded-xl font-medium text-sm"
-              style={{ color: 'rgba(255,140,0,0.6)' }}
+              style={{ 
+                width: '100%',
+                padding: '12px',
+                marginTop: '12px',
+                background: 'none',
+                border: 'none',
+                color: 'rgba(255,140,0,0.6)',
+                fontSize: '14px',
+                cursor: 'pointer'
+              }}
             >
               {language === 'he' ? 'דלג והשלם אחר כך' : 'Skip, complete later'}
             </button>
