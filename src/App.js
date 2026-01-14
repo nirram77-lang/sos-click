@@ -1073,9 +1073,18 @@ function App() {
   };
 
   return (
-    <div className="w-full min-h-screen" style={{ background: '#0d1829' }}>
+    <div style={{ 
+      background: '#0d1829', 
+      minHeight: '100vh',
+      display: 'flex',
+      justifyContent: 'center'
+    }}>
       {/* Mobile Container - Centered */}
-      <div className="mx-auto max-w-md min-h-screen relative" style={{
+      <div style={{
+        width: '100%',
+        maxWidth: '448px',
+        minHeight: '100vh',
+        position: 'relative',
         background: '#0d1829',
         boxShadow: '0 0 60px rgba(255,140,0,0.15)'
       }}>
@@ -1083,19 +1092,29 @@ function App() {
         {renderScreen()}
         
         {!menuOpen && !['onboarding', 'edit-profile', 'contacts', 'languages', 'settings', 'help'].includes(currentScreen) && (
-          <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md flex justify-around py-3 sm:py-4 px-4 sm:px-6 z-40" style={{
+          <nav style={{
+            position: 'fixed',
+            bottom: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '100%',
+            maxWidth: '448px',
+            display: 'flex',
+            justifyContent: 'space-around',
+            padding: '12px 24px',
             background: 'linear-gradient(180deg, rgba(10,22,40,0.95) 0%, #0a1628 100%)',
             borderTop: '1px solid rgba(255,140,0,0.2)',
-            backdropFilter: 'blur(10px)'
+            backdropFilter: 'blur(10px)',
+            zIndex: 40
           }}>
-            <button onClick={() => setCurrentScreen('home')} className="flex flex-col items-center gap-1 transition-all">
-              <Phone size={22} className="sm:w-6 sm:h-6" style={{ color: currentScreen === 'home' ? '#FF8C00' : '#4a5568' }} />
+            <button onClick={() => setCurrentScreen('home')} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <Phone size={22} style={{ color: currentScreen === 'home' ? '#FF8C00' : '#4a5568' }} />
             </button>
-            <button onClick={() => setCurrentScreen('profile')} className="flex flex-col items-center gap-1 transition-all">
-              <User size={22} className="sm:w-6 sm:h-6" style={{ color: currentScreen === 'profile' ? '#FF8C00' : '#4a5568' }} />
+            <button onClick={() => setCurrentScreen('profile')} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <User size={22} style={{ color: currentScreen === 'profile' ? '#FF8C00' : '#4a5568' }} />
             </button>
-            <button onClick={() => setMenuOpen(true)} className="flex flex-col items-center gap-1 transition-all">
-              <Settings size={22} className="sm:w-6 sm:h-6" style={{ color: '#4a5568' }} />
+            <button onClick={() => setMenuOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+              <Settings size={22} style={{ color: '#4a5568' }} />
             </button>
           </nav>
         )}
