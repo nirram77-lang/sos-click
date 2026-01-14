@@ -229,30 +229,47 @@ function App() {
     };
 
     const handleNext = () => {
-      if (onboardingStep < steps.length - 1) {
-        setOnboardingStep(onboardingStep + 1);
-      } else {
-        // Save all data
-        setProfile({
-          name: onboardingData.name,
-          age: onboardingData.age,
-          bloodType: onboardingData.bloodType,
-          allergies: onboardingData.allergies,
-          chronicDiseases: onboardingData.chronicDiseases,
-          medications: onboardingData.medications
+      // First, save current input values from DOM
+      const currentStepData = steps[onboardingStep];
+      if (currentStepData.fields) {
+        const newData = {...onboardingData};
+        currentStepData.fields.forEach(field => {
+          const input = document.getElementById(`input-${field}`);
+          if (input) {
+            newData[field] = input.value;
+          }
         });
+        setOnboardingData(newData);
         
-        if (onboardingData.contactName && onboardingData.contactPhone) {
-          setContacts([{
-            id: Date.now(),
-            name: onboardingData.contactName,
-            phone: onboardingData.contactPhone,
-            relation: onboardingData.contactRelation || (language === 'he' ? 'איש קשר' : 'Contact')
-          }]);
+        if (onboardingStep < steps.length - 1) {
+          setOnboardingStep(onboardingStep + 1);
+        } else {
+          // Save all data
+          setProfile({
+            name: newData.name,
+            age: newData.age,
+            bloodType: newData.bloodType,
+            allergies: newData.allergies,
+            chronicDiseases: newData.chronicDiseases,
+            medications: newData.medications
+          });
+          
+          if (newData.contactName && newData.contactPhone) {
+            setContacts([{
+              id: Date.now(),
+              name: newData.contactName,
+              phone: newData.contactPhone,
+              relation: newData.contactRelation || (language === 'he' ? 'איש קשר' : 'Contact')
+            }]);
+          }
+          
+          setOnboardingComplete(true);
+          setCurrentScreen('profile');
         }
-        
-        setOnboardingComplete(true);
-        setCurrentScreen('profile');
+      } else {
+        if (onboardingStep < steps.length - 1) {
+          setOnboardingStep(onboardingStep + 1);
+        }
       }
     };
 
@@ -269,11 +286,13 @@ function App() {
       <div style={{ 
         background: '#0d1829',
         minHeight: '100vh',
+        maxHeight: '100vh',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        overflow: 'hidden'
       }}>
         {/* Progress Bar */}
-        <div style={{ padding: '16px' }}>
+        <div style={{ padding: '12px 16px' }}>
           <div style={{ display: 'flex', gap: '8px' }}>
             {steps.map((_, idx) => (
               <div 
@@ -290,20 +309,21 @@ function App() {
           </div>
         </div>
 
-        {/* Hero Logo - Clean, No Circle */}
+        {/* Hero Logo - Rounded to hide square background */}
         {currentStep.icon === '🆘' && (
           <div style={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            paddingTop: '30px',
-            paddingBottom: '10px'
+            paddingTop: '15px',
+            paddingBottom: '5px'
           }}>
             <img src="/logo-sos.png" alt="SOS Click" style={{ 
-              width: '250px', 
-              height: '250px', 
+              width: '200px', 
+              height: '200px', 
               objectFit: 'contain',
-              filter: 'drop-shadow(0 0 40px rgba(255,140,0,0.4))'
+              borderRadius: '50%',
+              filter: 'drop-shadow(0 0 30px rgba(255,140,0,0.5))'
             }} />
           </div>
         )}
@@ -313,21 +333,21 @@ function App() {
           <div style={{
             display: 'flex',
             justifyContent: 'center',
-            paddingTop: '40px',
-            paddingBottom: '20px'
+            paddingTop: '20px',
+            paddingBottom: '10px'
           }}>
             <div style={{
-              width: '100px',
-              height: '100px',
+              width: '80px',
+              height: '80px',
               borderRadius: '50%',
               background: 'linear-gradient(145deg, #162544 0%, #0d1829 100%)',
               border: '2px solid rgba(255,140,0,0.5)',
-              boxShadow: '0 0 40px rgba(255,140,0,0.3)',
+              boxShadow: '0 0 30px rgba(255,140,0,0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <span style={{ fontSize: '48px' }}>{currentStep.icon}</span>
+              <span style={{ fontSize: '36px' }}>{currentStep.icon}</span>
             </div>
           </div>
         )}
@@ -338,15 +358,16 @@ function App() {
           display: 'flex', 
           flexDirection: 'column', 
           alignItems: 'center',
-          padding: '24px',
-          textAlign: 'center'
+          padding: '16px',
+          textAlign: 'center',
+          overflowY: 'auto'
         }}>
           {/* Title */}
           <h1 style={{ 
             color: '#FF8C00', 
-            fontSize: '28px', 
+            fontSize: '24px', 
             fontWeight: 900, 
-            marginBottom: '12px',
+            marginBottom: '8px',
             direction: language === 'he' ? 'rtl' : 'ltr'
           }}>
             {currentStep.title}
@@ -355,10 +376,10 @@ function App() {
           {/* Welcome Step Text */}
           {isFirstStep && (
             <div style={{ direction: language === 'he' ? 'rtl' : 'ltr' }}>
-              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '18px', marginBottom: '8px' }}>
+              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '16px', marginBottom: '6px' }}>
                 {currentStep.subtitle}
               </p>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', maxWidth: '280px' }}>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', maxWidth: '280px' }}>
                 {currentStep.description}
               </p>
             </div>
@@ -366,23 +387,24 @@ function App() {
 
           {/* Form Steps */}
           {currentStep.fields && (
-            <div style={{ width: '100%', maxWidth: '320px', marginTop: '16px', direction: language === 'he' ? 'rtl' : 'ltr' }}>
-              {currentStep.fields.map(field => (
+            <div style={{ width: '100%', maxWidth: '320px', marginTop: '12px', direction: language === 'he' ? 'rtl' : 'ltr' }}>
+              {currentStep.fields.map((field, index) => (
                 <input
-                  key={field}
+                  key={`${onboardingStep}-${field}`}
+                  id={`input-${field}`}
                   type={field === 'age' ? 'number' : field === 'contactPhone' ? 'tel' : 'text'}
-                  value={onboardingData[field]}
-                  onChange={(e) => setOnboardingData({...onboardingData, [field]: e.target.value})}
+                  defaultValue={onboardingData[field]}
+                  onBlur={(e) => setOnboardingData(prev => ({...prev, [field]: e.target.value}))}
                   placeholder={fieldLabels[language][field]}
                   style={{
                     width: '100%',
-                    padding: '16px',
+                    padding: '14px',
                     borderRadius: '12px',
                     fontSize: '16px',
                     background: 'rgba(255,255,255,0.05)',
                     border: '1px solid rgba(255,140,0,0.3)',
                     color: 'white',
-                    marginBottom: '12px',
+                    marginBottom: '10px',
                     outline: 'none'
                   }}
                 />
@@ -392,17 +414,17 @@ function App() {
         </div>
 
         {/* Buttons - Fixed at Bottom */}
-        <div style={{ padding: '24px' }}>
+        <div style={{ padding: '16px', paddingBottom: '20px' }}>
           <button
             onClick={handleNext}
             style={{
               width: '100%',
-              padding: '16px',
+              padding: '14px',
               borderRadius: '12px',
               fontWeight: 700,
-              fontSize: '18px',
+              fontSize: '16px',
               background: 'linear-gradient(135deg, #FF8C00 0%, #e67e00 100%)',
-              boxShadow: '0 0 30px rgba(255,140,0,0.4)',
+              boxShadow: '0 0 25px rgba(255,140,0,0.4)',
               color: '#0d1829',
               border: 'none',
               cursor: 'pointer'
@@ -419,12 +441,12 @@ function App() {
               onClick={handleSkip}
               style={{ 
                 width: '100%',
-                padding: '12px',
-                marginTop: '12px',
+                padding: '10px',
+                marginTop: '8px',
                 background: 'none',
                 border: 'none',
                 color: 'rgba(255,140,0,0.6)',
-                fontSize: '14px',
+                fontSize: '13px',
                 cursor: 'pointer'
               }}
             >
