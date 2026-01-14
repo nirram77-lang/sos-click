@@ -1077,7 +1077,8 @@ function App() {
       background: '#0d1829', 
       minHeight: '100vh',
       width: '100%',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      direction: 'ltr'
     }}>
       {/* Mobile Container - Centered */}
       <div style={{
