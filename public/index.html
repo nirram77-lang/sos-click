@@ -12,16 +12,32 @@
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo-sos.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     
-    <!-- Open Graph / Social -->
-    <meta property="og:title" content="SOS Click - Emergency Medical Card" />
-    <meta property="og:description" content="Your emergency medical information accessible instantly" />
+    <!-- Cache Control - Always Fresh -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    
+    <!-- Open Graph / Social - WhatsApp, Facebook, etc -->
+    <meta property="og:title" content="SOS Click - כרטיס חירום רפואי" />
+    <meta property="og:description" content="המידע הרפואי שלך זמין במיידי לצוותי הצלה. להורדה חינם!" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="%PUBLIC_URL%/logo-sos.png" />
+    <meta property="og:url" content="https://sos-click.vercel.app" />
+    <meta property="og:image" content="https://sos-click.vercel.app/logo-sos.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:locale" content="he_IL" />
+    <meta property="og:site_name" content="SOS Click" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="SOS Click - כרטיס חירום רפואי" />
+    <meta name="twitter:description" content="המידע הרפואי שלך זמין במיידי לצוותי הצלה" />
+    <meta name="twitter:image" content="https://sos-click.vercel.app/logo-sos.png" />
     
     <title>SOS Click - כרטיס חירום רפואי</title>
     
     <style>
-      /* Prevent flash of unstyled content */
+      /* Base styles */
       * { box-sizing: border-box; }
       html, body, #root { 
         height: 100%; 
@@ -33,10 +49,92 @@
         background: #0d1829; 
         -webkit-overflow-scrolling: touch;
       }
+      
+      /* Splash Screen */
+      #splash {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #0d1829;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease-out;
+      }
+      #splash.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #splash img {
+        width: 200px;
+        height: 200px;
+        object-fit: contain;
+        border-radius: 50%;
+        filter: drop-shadow(0 0 40px rgba(255,140,0,0.5));
+        animation: pulse 2s ease-in-out infinite;
+      }
+      #splash .loading-text {
+        color: #FF8C00;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 14px;
+        margin-top: 20px;
+        opacity: 0.8;
+      }
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+      }
+      @keyframes shimmer {
+        0%, 100% { opacity: 0.6; text-shadow: 0 0 10px rgba(205,127,50,0.3); }
+        50% { opacity: 1; text-shadow: 0 0 20px rgba(205,127,50,0.8), 0 0 30px rgba(218,165,32,0.4); }
+      }
     </style>
   </head>
   <body>
+    <!-- Splash Screen -->
+    <div id="splash">
+      <img src="%PUBLIC_URL%/logo-sos.png" alt="SOS Click" />
+      <div class="loading-text">טוען...</div>
+    </div>
+    
     <noscript>יש להפעיל JavaScript להפעלת האפליקציה</noscript>
     <div id="root"></div>
+    
+    <script>
+      // Clear cache on every load
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for (let registration of registrations) {
+            registration.unregister();
+          }
+        });
+      }
+      
+      // Clear caches
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (let name of names) {
+            caches.delete(name);
+          }
+        });
+      }
+      
+      // Hide splash when app is ready
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          var splash = document.getElementById('splash');
+          if (splash) {
+            splash.classList.add('fade-out');
+            setTimeout(function() {
+              splash.style.display = 'none';
+            }, 500);
+          }
+        }, 1000);
+      });
+    </script>
   </body>
 </html>

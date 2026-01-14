@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Phone, User, Settings, MapPin, X, ChevronRight, Trash2, Plus, Save, Camera, Check, Globe, HelpCircle } from 'lucide-react';
+import { Phone, User, Settings, MapPin, X, ChevronRight, Trash2, Plus, Save, Camera, Check, Globe, HelpCircle, LogOut } from 'lucide-react';
 
 // Database simulation with localStorage
 const useDatabase = () => {
@@ -139,6 +139,11 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [sendingLocation, setSendingLocation] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(0);
+  const [isPremium, setIsPremium] = useState(() => {
+    return localStorage.getItem('sos_premium') === 'true';
+  });
+  // eslint-disable-next-line no-unused-vars
+  const activatePremium = () => setIsPremium(true);
   const [profileImage, setProfileImage] = useState(() => {
     return localStorage.getItem('sos_profile_image') || null;
   });
@@ -153,6 +158,11 @@ function App() {
     contactPhone: '',
     contactRelation: ''
   });
+
+  // Save premium status
+  useEffect(() => {
+    localStorage.setItem('sos_premium', isPremium);
+  }, [isPremium]);
 
   // Save profile image to localStorage
   useEffect(() => {
@@ -178,7 +188,7 @@ function App() {
         return;
       }
       
-      if (['edit-profile', 'contacts', 'languages', 'settings', 'help'].includes(currentScreen)) {
+      if (['edit-profile', 'contacts', 'languages', 'settings', 'help', 'premium'].includes(currentScreen)) {
         setCurrentScreen('home');
         window.history.pushState(null, '', window.location.pathname);
         return;
@@ -333,23 +343,21 @@ function App() {
     return (
       <div style={{ 
         background: '#0d1829',
-        minHeight: '100vh',
-        height: '100vh',
-        maxHeight: '-webkit-fill-available',
+        height: '100dvh',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
         paddingTop: 'env(safe-area-inset-top)'
       }}>
         {/* Progress Bar */}
-        <div style={{ padding: '8px 16px' }}>
-          <div style={{ display: 'flex', gap: '6px' }}>
+        <div style={{ padding: '10px 20px' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
             {steps.map((_, idx) => (
               <div 
                 key={idx} 
                 style={{ 
                   flex: 1,
-                  height: '3px',
+                  height: '4px',
                   borderRadius: '2px',
                   background: idx <= onboardingStep ? '#FF8C00' : 'rgba(255,140,0,0.2)',
                   transition: 'all 0.3s'
@@ -359,38 +367,34 @@ function App() {
           </div>
         </div>
 
-        {/* Hero Logo - Rounded to hide square background */}
-        {currentStep.icon === '🆘' && (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingTop: '10px',
-            paddingBottom: '5px'
-          }}>
+        {/* Main Content - Flex grow to fill space */}
+        <div style={{ 
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+          textAlign: 'center'
+        }}>
+          {/* Hero Logo */}
+          {currentStep.icon === '🆘' && (
             <img src="/logo-sos.png" alt="SOS Click" style={{ 
-              width: '160px', 
-              height: '160px', 
+              width: '180px', 
+              height: '180px', 
               objectFit: 'contain',
               borderRadius: '50%',
-              filter: 'drop-shadow(0 0 30px rgba(255,140,0,0.5))'
+              filter: 'drop-shadow(0 0 30px rgba(255,140,0,0.5))',
+              marginBottom: '20px'
             }} />
-          </div>
-        )}
+          )}
 
-        {/* Profile Photo Upload - for user details step */}
-        {currentStep.icon === '👤' && (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            paddingTop: '10px',
-            paddingBottom: '5px'
-          }}>
-            <label style={{ cursor: 'pointer' }}>
+          {/* Profile Photo Upload */}
+          {currentStep.icon === '👤' && (
+            <label style={{ cursor: 'pointer', marginBottom: '15px' }}>
               <input 
                 type="file" 
-                accept="image/*" 
-                capture="user"
+                accept="image/*"
                 style={{ display: 'none' }}
                 onChange={(e) => {
                   const file = e.target.files[0];
@@ -404,8 +408,8 @@ function App() {
                 }}
               />
               <div style={{
-                width: '90px',
-                height: '90px',
+                width: '100px',
+                height: '100px',
                 borderRadius: '50%',
                 background: profileImage ? `url(${profileImage}) center/cover` : 'linear-gradient(145deg, #162544 0%, #0d1829 100%)',
                 border: '2px solid rgba(255,140,0,0.5)',
@@ -415,15 +419,15 @@ function App() {
                 justifyContent: 'center',
                 position: 'relative'
               }}>
-                {!profileImage && <User size={40} color="rgba(255,140,0,0.7)" />}
+                {!profileImage && <User size={45} color="rgba(255,140,0,0.7)" />}
                 <div style={{
                   position: 'absolute',
                   bottom: '0',
                   right: '0',
                   background: '#FF8C00',
                   borderRadius: '50%',
-                  width: '28px',
-                  height: '28px',
+                  width: '30px',
+                  height: '30px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
@@ -432,49 +436,32 @@ function App() {
                 </div>
               </div>
             </label>
-          </div>
-        )}
+          )}
 
-        {/* Small Icon for other steps (medical, contacts) */}
-        {currentStep.icon !== '🆘' && currentStep.icon !== '👤' && (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            paddingTop: '10px',
-            paddingBottom: '5px'
-          }}>
+          {/* Other Icons */}
+          {currentStep.icon !== '🆘' && currentStep.icon !== '👤' && (
             <div style={{
-              width: '70px',
-              height: '70px',
+              width: '80px',
+              height: '80px',
               borderRadius: '50%',
               background: 'linear-gradient(145deg, #162544 0%, #0d1829 100%)',
               border: '2px solid rgba(255,140,0,0.5)',
               boxShadow: '0 0 30px rgba(255,140,0,0.3)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              marginBottom: '15px'
             }}>
-              <span style={{ fontSize: '32px' }}>{currentStep.icon}</span>
+              <span style={{ fontSize: '36px' }}>{currentStep.icon}</span>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Content */}
-        <div style={{ 
-          flex: 1, 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center',
-          padding: '8px 16px',
-          textAlign: 'center',
-          overflow: 'hidden'
-        }}>
           {/* Title */}
           <h1 style={{ 
             color: '#FF8C00', 
-            fontSize: '22px', 
+            fontSize: '26px', 
             fontWeight: 900, 
-            marginBottom: '6px',
+            marginBottom: '10px',
             direction: language === 'he' ? 'rtl' : 'ltr'
           }}>
             {currentStep.title}
@@ -483,19 +470,19 @@ function App() {
           {/* Welcome Step Text */}
           {isFirstStep && (
             <div style={{ direction: language === 'he' ? 'rtl' : 'ltr' }}>
-              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '15px', marginBottom: '4px' }}>
+              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '17px', marginBottom: '8px' }}>
                 {currentStep.subtitle}
               </p>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', maxWidth: '280px' }}>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', maxWidth: '300px' }}>
                 {currentStep.description}
               </p>
             </div>
           )}
 
-          {/* Form Steps */}
+          {/* Form Fields */}
           {currentStep.fields && (
-            <div style={{ width: '100%', maxWidth: '320px', marginTop: '8px', direction: language === 'he' ? 'rtl' : 'ltr' }}>
-              {currentStep.fields.map((field, index) => (
+            <div style={{ width: '100%', maxWidth: '320px', marginTop: '10px', direction: language === 'he' ? 'rtl' : 'ltr' }}>
+              {currentStep.fields.map((field) => (
                 <input
                   key={`${onboardingStep}-${field}`}
                   id={`input-${field}`}
@@ -505,13 +492,13 @@ function App() {
                   placeholder={fieldLabels[language][field]}
                   style={{
                     width: '100%',
-                    padding: '12px',
-                    borderRadius: '10px',
-                    fontSize: '15px',
+                    padding: '14px 16px',
+                    borderRadius: '12px',
+                    fontSize: '16px',
                     background: 'rgba(255,255,255,0.05)',
                     border: '1px solid rgba(255,140,0,0.3)',
                     color: 'white',
-                    marginBottom: '8px',
+                    marginBottom: '12px',
                     outline: 'none'
                   }}
                 />
@@ -520,18 +507,21 @@ function App() {
           )}
         </div>
 
-        {/* Buttons - Fixed at Bottom */}
-        <div style={{ padding: '12px 16px', paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
+        {/* Button - At Bottom */}
+        <div style={{ 
+          padding: '20px', 
+          paddingBottom: 'max(20px, env(safe-area-inset-bottom))'
+        }}>
           <button
             onClick={handleNext}
             style={{
               width: '100%',
-              padding: '12px',
-              borderRadius: '10px',
+              padding: '16px',
+              borderRadius: '12px',
               fontWeight: 700,
-              fontSize: '15px',
+              fontSize: '18px',
               background: 'linear-gradient(135deg, #FF8C00 0%, #e67e00 100%)',
-              boxShadow: '0 0 20px rgba(255,140,0,0.4)',
+              boxShadow: '0 0 25px rgba(255,140,0,0.4)',
               color: '#0d1829',
               border: 'none',
               cursor: 'pointer'
@@ -548,12 +538,12 @@ function App() {
               onClick={handleSkip}
               style={{ 
                 width: '100%',
-                padding: '8px',
-                marginTop: '6px',
+                padding: '10px',
+                marginTop: '8px',
                 background: 'none',
                 border: 'none',
                 color: 'rgba(255,140,0,0.6)',
-                fontSize: '12px',
+                fontSize: '14px',
                 cursor: 'pointer'
               }}
             >
@@ -566,100 +556,183 @@ function App() {
   };
 
   const HomeScreen = () => (
-    <div className="min-h-screen p-4 pb-24" style={{ 
+    <div style={{ 
       direction: language === 'he' ? 'rtl' : 'ltr',
-      background: '#0d1829'
+      background: '#0d1829',
+      height: '100dvh',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
     }}>
-      {/* Logo Header */}
-      <div className="pt-2 pb-4 flex flex-col items-center">
-        <div className="w-20 h-20 rounded-full flex items-center justify-center mb-2" style={{
-          background: 'linear-gradient(145deg, #162544 0%, #0d1829 100%)',
-          border: '2px solid rgba(255,140,0,0.5)',
-          boxShadow: '0 0 40px rgba(255,140,0,0.3)'
+      {/* Main Content - Centered Logo */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px'
+      }}>
+        {/* Big Beautiful Logo */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginBottom: '20px'
         }}>
-          <img src="/logo-sos.png" alt="SOS Click" className="w-16 h-16 object-contain" />
+          <img 
+            src="/logo-sos.png" 
+            alt="SOS Click" 
+            style={{ 
+              width: 'min(70vw, 280px)', 
+              height: 'min(70vw, 280px)', 
+              objectFit: 'contain',
+              borderRadius: '50%',
+              filter: 'drop-shadow(0 0 40px rgba(255,140,0,0.4))'
+            }} 
+          />
         </div>
-        <h1 className="text-xl font-black tracking-widest" style={{ color: '#FF8C00' }}>SOS CLICK</h1>
-      </div>
-
-      {/* Desktop Banner */}
-      <div className="hidden md:block rounded-2xl p-4 mb-4 text-center" style={{
-        background: 'rgba(255,140,0,0.1)',
-        border: '1px solid rgba(255,140,0,0.2)'
-      }}>
-        <p className="font-medium" style={{ color: '#FF8C00' }}>📱 {t.viewOnMobile}</p>
-      </div>
-
-      {/* Profile Card */}
-      <div className="rounded-2xl p-4 mb-4" style={{
-        background: 'rgba(255,140,0,0.05)',
-        border: '1px solid rgba(255,140,0,0.15)'
-      }}>
-        <div className="flex items-center gap-3">
-          <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0" style={{
-            background: 'linear-gradient(135deg, #FF8C00 0%, #e67e00 100%)',
-            boxShadow: '0 0 20px rgba(255,140,0,0.4)'
+        
+        {/* Sending Location Indicator */}
+        {sendingLocation && (
+          <div style={{
+            background: 'rgba(59,130,246,0.1)',
+            border: '1px solid rgba(59,130,246,0.3)',
+            borderRadius: '16px',
+            padding: '16px 24px',
+            textAlign: 'center',
+            marginTop: '20px'
           }}>
-            <User size={26} style={{ color: '#0d1829' }} />
+            <div style={{ marginBottom: '8px' }}>
+              <MapPin size={28} style={{ color: '#3b82f6', animation: 'spin 1s linear infinite' }} />
+            </div>
+            <p style={{ color: '#93c5fd', fontSize: '16px', fontWeight: 500 }}>{t.sendingLocation}</p>
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-white">{profile.name}</h2>
-            <p className="text-sm" style={{ color: 'rgba(255,140,0,0.7)' }}>{profile.age} {t.yearsOld}</p>
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Emergency Call Button */}
-      <button
-        onClick={handleEmergencyCall}
-        className="w-full py-5 rounded-2xl mb-4 flex items-center justify-center gap-3 text-lg font-black transform active:scale-95 transition-all"
-        style={{
-          background: 'linear-gradient(135deg, #FF8C00 0%, #e67e00 100%)',
-          boxShadow: '0 0 40px rgba(255,140,0,0.5)',
-          color: '#0d1829'
-        }}
-      >
-        <Phone size={24} />
-        {t.emergencyCall}
-      </button>
-
-      {sendingLocation && (
-        <div className="rounded-2xl p-4 mb-4 text-center" style={{
-          background: 'rgba(59,130,246,0.1)',
-          border: '1px solid rgba(59,130,246,0.3)'
+      {/* Bottom Section - Premium Bronze Style */}
+      <div style={{
+        background: 'linear-gradient(to top, rgba(205,127,50,0.15) 0%, rgba(255,140,0,0.05) 50%, transparent 100%)',
+        borderTop: '1px solid rgba(205,127,50,0.4)',
+        padding: '20px',
+        paddingBottom: 'max(20px, env(safe-area-inset-bottom))'
+      }}>
+        {/* App URL - Shimmering Bronze */}
+        <div style={{ 
+          textAlign: 'center',
+          marginBottom: '20px'
         }}>
-          <div className="flex justify-center mb-3">
-            <div className="animate-spin">
-              <MapPin size={28} style={{ color: '#3b82f6' }} />
-            </div>
-          </div>
-          <p className="text-base font-medium" style={{ color: '#93c5fd' }}>{t.sendingLocation}</p>
-        </div>
-      )}
-
-      {/* Emergency Contacts */}
-      <div className="rounded-2xl p-4" style={{
-        background: 'rgba(255,140,0,0.05)',
-        border: '1px solid rgba(255,140,0,0.15)'
-      }}>
-        <h3 className="text-lg font-bold mb-3" style={{ color: '#FF8C00' }}>{t.emergencyContacts}</h3>
-        {contacts.map(contact => (
-          <div key={contact.id} className="flex items-center justify-between p-3 mb-2 rounded-xl last:mb-0" style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,140,0,0.1)'
+          <p style={{ 
+            color: '#CD7F32',
+            fontSize: '13px',
+            fontWeight: 600,
+            letterSpacing: '2px',
+            textShadow: '0 0 10px rgba(205,127,50,0.5)',
+            animation: 'shimmer 2s ease-in-out infinite'
           }}>
-            <div>
-              <p className="font-bold text-sm text-white">{contact.name}</p>
-              <p className="text-xs text-gray-400">{contact.relation}</p>
-            </div>
-            <a href={`tel:${contact.phone}`} className="p-2 rounded-full" style={{
-              background: 'rgba(255,140,0,0.15)',
-              border: '1px solid rgba(255,140,0,0.3)'
+            www.sosclick.app
+          </p>
+        </div>
+        
+        {/* Bottom Navigation - Bronze Theme */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+          background: 'linear-gradient(135deg, rgba(205,127,50,0.1) 0%, rgba(255,140,0,0.05) 100%)',
+          borderRadius: '20px',
+          padding: '12px',
+          border: '1px solid rgba(205,127,50,0.3)',
+          boxShadow: '0 0 30px rgba(205,127,50,0.2), inset 0 1px 0 rgba(255,255,255,0.1)'
+        }}>
+          {/* Emergency Call */}
+          <button
+            onClick={handleEmergencyCall}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <div style={{
+              width: '55px',
+              height: '55px',
+              borderRadius: '50%',
+              background: 'linear-gradient(145deg, #CD7F32 0%, #B8860B 50%, #DAA520 100%)',
+              boxShadow: '0 0 25px rgba(205,127,50,0.6), inset 0 2px 4px rgba(255,255,255,0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '2px solid rgba(218,165,32,0.5)'
             }}>
-              <Phone size={18} style={{ color: '#FF8C00' }} />
-            </a>
-          </div>
-        ))}
+              <Phone size={26} color="#0d1829" />
+            </div>
+            <span style={{ color: '#CD7F32', fontSize: '11px', fontWeight: 600 }}>חירום</span>
+          </button>
+
+          {/* Profile */}
+          <button
+            onClick={() => navigateTo('profile')}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <div style={{
+              width: '55px',
+              height: '55px',
+              borderRadius: '50%',
+              background: 'linear-gradient(145deg, rgba(205,127,50,0.2) 0%, rgba(184,134,11,0.1) 100%)',
+              border: '2px solid rgba(205,127,50,0.4)',
+              boxShadow: '0 0 15px rgba(205,127,50,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <User size={26} color="#CD7F32" />
+            </div>
+            <span style={{ color: 'rgba(205,127,50,0.7)', fontSize: '11px', fontWeight: 600 }}>פרופיל</span>
+          </button>
+
+          {/* Settings */}
+          <button
+            onClick={() => setMenuOpen(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <div style={{
+              width: '55px',
+              height: '55px',
+              borderRadius: '50%',
+              background: 'linear-gradient(145deg, rgba(205,127,50,0.2) 0%, rgba(184,134,11,0.1) 100%)',
+              border: '2px solid rgba(205,127,50,0.4)',
+              boxShadow: '0 0 15px rgba(205,127,50,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Settings size={26} color="#CD7F32" />
+            </div>
+            <span style={{ color: 'rgba(205,127,50,0.7)', fontSize: '11px', fontWeight: 600 }}>הגדרות</span>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -1213,6 +1286,179 @@ function App() {
     </div>
   );
 
+  // Premium Payment Screen
+  const PremiumScreen = () => {
+    const features = language === 'he' ? [
+      { icon: '👥', title: 'אנשי קשר ללא הגבלה', desc: 'הוסף כמה אנשי קשר לחירום שתרצה' },
+      { icon: '🎨', title: 'טפט מותאם אישית', desc: 'צור טפט עם QR Code בפינה' },
+      { icon: '🖨️', title: 'כרטיס להדפסה', desc: 'הדפס QR להדבקה על הטלפון' },
+      { icon: '📋', title: 'היסטוריה רפואית', desc: 'שמור היסטוריה רפואית מלאה' },
+      { icon: '☁️', title: 'גיבוי בענן', desc: 'המידע שלך מגובה ומאובטח' },
+      { icon: '🚫', title: 'ללא פרסומות', desc: 'חוויה נקייה לחלוטין' }
+    ] : [
+      { icon: '👥', title: 'Unlimited Contacts', desc: 'Add as many emergency contacts as you need' },
+      { icon: '🎨', title: 'Custom Wallpaper', desc: 'Create wallpaper with QR Code in corner' },
+      { icon: '🖨️', title: 'Printable Card', desc: 'Print QR to stick on your phone' },
+      { icon: '📋', title: 'Medical History', desc: 'Save complete medical history' },
+      { icon: '☁️', title: 'Cloud Backup', desc: 'Your data is backed up and secure' },
+      { icon: '🚫', title: 'No Ads', desc: 'Completely clean experience' }
+    ];
+
+    const handleBitPayment = () => {
+      // Bit payment link - replace with your actual Bit link
+      window.open('https://www.bitpay.co.il/app/sosclick', '_blank');
+    };
+
+    return (
+      <div style={{ 
+        direction: language === 'he' ? 'rtl' : 'ltr',
+        background: '#0d1829',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        {/* Header */}
+        <div style={{ padding: '16px 20px' }}>
+          <button 
+            onClick={() => navigateTo('home')} 
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: '#CD7F32',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer'
+            }}
+          >
+            <ChevronRight className={language === 'he' ? '' : 'rotate-180'} size={20} />
+            <span>{t.back}</span>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div style={{ flex: 1, padding: '0 20px', overflow: 'auto' }}>
+          {/* Premium Badge */}
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <div style={{
+              background: 'linear-gradient(145deg, #CD7F32 0%, #B8860B 50%, #DAA520 100%)',
+              borderRadius: '50%',
+              width: '80px',
+              height: '80px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 0 40px rgba(205,127,50,0.5)',
+              margin: '0 auto 16px'
+            }}>
+              <span style={{ fontSize: '40px' }}>👑</span>
+            </div>
+            <h1 style={{ 
+              color: '#CD7F32', 
+              fontSize: '28px', 
+              fontWeight: 900,
+              marginBottom: '8px',
+              textShadow: '0 0 20px rgba(205,127,50,0.3)'
+            }}>
+              {language === 'he' ? 'SOS Click Premium' : 'SOS Click Premium'}
+            </h1>
+            <p style={{ color: 'rgba(205,127,50,0.7)', fontSize: '14px' }}>
+              {language === 'he' ? 'שדרג את ההגנה שלך' : 'Upgrade your protection'}
+            </p>
+          </div>
+
+          {/* Features */}
+          <div style={{ marginBottom: '24px' }}>
+            {features.map((feature, idx) => (
+              <div key={idx} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '12px',
+                marginBottom: '8px',
+                background: 'rgba(205,127,50,0.05)',
+                borderRadius: '12px',
+                border: '1px solid rgba(205,127,50,0.2)'
+              }}>
+                <span style={{ fontSize: '24px' }}>{feature.icon}</span>
+                <div>
+                  <p style={{ color: '#CD7F32', fontWeight: 700, fontSize: '14px' }}>{feature.title}</p>
+                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>{feature.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Price */}
+          <div style={{
+            textAlign: 'center',
+            padding: '20px',
+            background: 'linear-gradient(135deg, rgba(205,127,50,0.1) 0%, rgba(184,134,11,0.05) 100%)',
+            borderRadius: '20px',
+            border: '2px solid rgba(205,127,50,0.3)',
+            marginBottom: '20px'
+          }}>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginBottom: '4px' }}>
+              {language === 'he' ? 'מחיר חד פעמי' : 'One-time payment'}
+            </p>
+            <p style={{ 
+              color: '#DAA520', 
+              fontSize: '48px', 
+              fontWeight: 900,
+              textShadow: '0 0 20px rgba(218,165,32,0.4)'
+            }}>
+              {language === 'he' ? '₪9.90' : '$2.90'}
+            </p>
+            <p style={{ color: 'rgba(205,127,50,0.7)', fontSize: '12px' }}>
+              {language === 'he' ? 'לכל החיים • ללא מנוי' : 'Lifetime • No subscription'}
+            </p>
+          </div>
+        </div>
+
+        {/* Payment Button */}
+        <div style={{ 
+          padding: '20px',
+          paddingBottom: 'max(20px, env(safe-area-inset-bottom))',
+          background: 'linear-gradient(to top, rgba(205,127,50,0.1) 0%, transparent 100%)'
+        }}>
+          <button
+            onClick={handleBitPayment}
+            style={{
+              width: '100%',
+              padding: '18px',
+              borderRadius: '16px',
+              fontWeight: 800,
+              fontSize: '18px',
+              background: 'linear-gradient(145deg, #CD7F32 0%, #B8860B 50%, #DAA520 100%)',
+              boxShadow: '0 0 30px rgba(205,127,50,0.5), inset 0 2px 4px rgba(255,255,255,0.3)',
+              color: '#0d1829',
+              border: '2px solid rgba(218,165,32,0.5)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px'
+            }}
+          >
+            <span>💳</span>
+            {language === 'he' ? 'שלם עכשיו עם Bit' : 'Pay Now with Bit'}
+          </button>
+          
+          <p style={{ 
+            textAlign: 'center', 
+            color: 'rgba(205,127,50,0.5)', 
+            fontSize: '11px',
+            marginTop: '12px'
+          }}>
+            {language === 'he' 
+              ? 'התשלום מאובטח • אישור מיידי' 
+              : 'Secure payment • Instant activation'}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
   const MenuScreen = () => {
     const MenuButton = ({ icon, text, onClick }) => (
       <button
@@ -1252,6 +1498,87 @@ function App() {
           <MenuButton icon={<Globe size={20} />} text={t.languages} onClick={() => navigateTo('languages')} />
           <MenuButton icon={<Settings size={20} />} text={t.advancedSettings} onClick={() => navigateTo('settings')} />
           <MenuButton icon={<HelpCircle size={20} />} text={t.helpAbout} onClick={() => navigateTo('help')} />
+          
+          {/* Premium Button */}
+          {!isPremium && (
+            <button
+              onClick={() => navigateTo('premium')}
+              className="w-full flex items-center justify-between p-3 sm:p-4 rounded-2xl transition-all mt-4"
+              style={{
+                background: 'linear-gradient(135deg, rgba(205,127,50,0.2) 0%, rgba(184,134,11,0.1) 100%)',
+                border: '2px solid rgba(205,127,50,0.4)',
+                boxShadow: '0 0 20px rgba(205,127,50,0.2)'
+              }}
+            >
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span style={{ fontSize: '20px' }}>👑</span>
+                <span className="text-base sm:text-lg font-bold" style={{ color: '#CD7F32' }}>
+                  {language === 'he' ? 'שדרג לPremium' : 'Upgrade to Premium'}
+                </span>
+              </div>
+              <ChevronRight size={20} className={language === 'he' ? 'rotate-180' : ''} style={{ color: '#CD7F32' }} />
+            </button>
+          )}
+          
+          {/* Logout Button */}
+          <button
+            onClick={() => {
+              if (window.confirm(language === 'he' ? 'האם אתה בטוח שברצונך להתנתק?' : 'Are you sure you want to logout?')) {
+                setOnboardingComplete(false);
+                setCurrentScreen('onboarding');
+                setOnboardingStep(0);
+                setMenuOpen(false);
+              }
+            }}
+            className="w-full flex items-center justify-between p-3 sm:p-4 rounded-2xl transition-all mt-4"
+            style={{
+              background: 'rgba(255,140,0,0.05)',
+              border: '1px solid rgba(255,140,0,0.2)'
+            }}
+          >
+            <div className="flex items-center gap-2 sm:gap-3">
+              <LogOut size={20} style={{ color: '#FF8C00' }} />
+              <span className="text-base sm:text-lg font-medium text-white">
+                {language === 'he' ? 'התנתקות' : 'Logout'}
+              </span>
+            </div>
+          </button>
+          
+          {/* Delete Account Button */}
+          <button
+            onClick={() => {
+              if (window.confirm(language === 'he' 
+                ? 'האם אתה בטוח שברצונך למחוק את החשבון? כל המידע יימחק לצמיתות!' 
+                : 'Are you sure you want to delete your account? All data will be permanently deleted!')) {
+                // Clear all localStorage
+                localStorage.removeItem('sos_onboarding_complete');
+                localStorage.removeItem('sos_profile');
+                localStorage.removeItem('sos_contacts');
+                localStorage.removeItem('sos_settings');
+                localStorage.removeItem('sos_premium');
+                localStorage.removeItem('sos_profile_image');
+                // Reset state
+                setProfile({ name: '', age: '', bloodType: '', chronicDiseases: '', allergies: '', medications: '' });
+                setContacts([]);
+                setOnboardingComplete(false);
+                setCurrentScreen('onboarding');
+                setOnboardingStep(0);
+                setMenuOpen(false);
+              }
+            }}
+            className="w-full flex items-center justify-between p-3 sm:p-4 rounded-2xl transition-all mt-2"
+            style={{
+              background: 'rgba(239,68,68,0.1)',
+              border: '1px solid rgba(239,68,68,0.3)'
+            }}
+          >
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Trash2 size={20} style={{ color: '#ef4444' }} />
+              <span className="text-base sm:text-lg font-medium" style={{ color: '#ef4444' }}>
+                {language === 'he' ? 'מחיקת חשבון' : 'Delete Account'}
+              </span>
+            </div>
+          </button>
         </div>
       </div>
     );
@@ -1267,6 +1594,7 @@ function App() {
       case 'languages': return <LanguageScreen />;
       case 'settings': return <SettingsScreen />;
       case 'help': return <HelpScreen />;
+      case 'premium': return <PremiumScreen />;
       default: return <HomeScreen />;
     }
   };
