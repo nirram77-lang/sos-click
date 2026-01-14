@@ -139,6 +139,9 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [sendingLocation, setSendingLocation] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(0);
+  const [profileImage, setProfileImage] = useState(() => {
+    return localStorage.getItem('sos_profile_image') || null;
+  });
   const [onboardingData, setOnboardingData] = useState({
     name: profile.name || '',
     age: profile.age || '',
@@ -150,6 +153,51 @@ function App() {
     contactPhone: '',
     contactRelation: ''
   });
+
+  // Save profile image to localStorage
+  useEffect(() => {
+    if (profileImage) {
+      localStorage.setItem('sos_profile_image', profileImage);
+    }
+  }, [profileImage]);
+
+  // Handle back button
+  useEffect(() => {
+    const handleBackButton = (e) => {
+      e.preventDefault();
+      
+      if (menuOpen) {
+        setMenuOpen(false);
+        window.history.pushState(null, '', window.location.pathname);
+        return;
+      }
+      
+      if (currentScreen === 'onboarding' && onboardingStep > 0) {
+        setOnboardingStep(prev => prev - 1);
+        window.history.pushState(null, '', window.location.pathname);
+        return;
+      }
+      
+      if (['edit-profile', 'contacts', 'languages', 'settings', 'help'].includes(currentScreen)) {
+        setCurrentScreen('home');
+        window.history.pushState(null, '', window.location.pathname);
+        return;
+      }
+      
+      if (currentScreen === 'profile') {
+        setCurrentScreen('home');
+        window.history.pushState(null, '', window.location.pathname);
+        return;
+      }
+    };
+
+    window.history.pushState(null, '', window.location.pathname);
+    window.addEventListener('popstate', handleBackButton);
+    
+    return () => {
+      window.removeEventListener('popstate', handleBackButton);
+    };
+  }, [currentScreen, menuOpen, onboardingStep]);
 
   const language = settings.language;
   const t = translations[language];
@@ -286,20 +334,22 @@ function App() {
       <div style={{ 
         background: '#0d1829',
         minHeight: '100vh',
-        maxHeight: '100vh',
+        height: '100vh',
+        maxHeight: '-webkit-fill-available',
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        paddingTop: 'env(safe-area-inset-top)'
       }}>
         {/* Progress Bar */}
-        <div style={{ padding: '12px 16px' }}>
-          <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ padding: '8px 16px' }}>
+          <div style={{ display: 'flex', gap: '6px' }}>
             {steps.map((_, idx) => (
               <div 
                 key={idx} 
                 style={{ 
                   flex: 1,
-                  height: '4px',
+                  height: '3px',
                   borderRadius: '2px',
                   background: idx <= onboardingStep ? '#FF8C00' : 'rgba(255,140,0,0.2)',
                   transition: 'all 0.3s'
@@ -315,12 +365,12 @@ function App() {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            paddingTop: '15px',
+            paddingTop: '10px',
             paddingBottom: '5px'
           }}>
             <img src="/logo-sos.png" alt="SOS Click" style={{ 
-              width: '200px', 
-              height: '200px', 
+              width: '160px', 
+              height: '160px', 
               objectFit: 'contain',
               borderRadius: '50%',
               filter: 'drop-shadow(0 0 30px rgba(255,140,0,0.5))'
@@ -328,17 +378,74 @@ function App() {
           </div>
         )}
 
-        {/* Small Icon for other steps */}
-        {currentStep.icon !== '🆘' && (
+        {/* Profile Photo Upload - for user details step */}
+        {currentStep.icon === '👤' && (
           <div style={{
             display: 'flex',
             justifyContent: 'center',
-            paddingTop: '20px',
-            paddingBottom: '10px'
+            paddingTop: '10px',
+            paddingBottom: '5px'
+          }}>
+            <label style={{ cursor: 'pointer' }}>
+              <input 
+                type="file" 
+                accept="image/*" 
+                capture="user"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setProfileImage(reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+              />
+              <div style={{
+                width: '90px',
+                height: '90px',
+                borderRadius: '50%',
+                background: profileImage ? `url(${profileImage}) center/cover` : 'linear-gradient(145deg, #162544 0%, #0d1829 100%)',
+                border: '2px solid rgba(255,140,0,0.5)',
+                boxShadow: '0 0 30px rgba(255,140,0,0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative'
+              }}>
+                {!profileImage && <User size={40} color="rgba(255,140,0,0.7)" />}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '0',
+                  right: '0',
+                  background: '#FF8C00',
+                  borderRadius: '50%',
+                  width: '28px',
+                  height: '28px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Camera size={16} color="#0d1829" />
+                </div>
+              </div>
+            </label>
+          </div>
+        )}
+
+        {/* Small Icon for other steps (medical, contacts) */}
+        {currentStep.icon !== '🆘' && currentStep.icon !== '👤' && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            paddingTop: '10px',
+            paddingBottom: '5px'
           }}>
             <div style={{
-              width: '80px',
-              height: '80px',
+              width: '70px',
+              height: '70px',
               borderRadius: '50%',
               background: 'linear-gradient(145deg, #162544 0%, #0d1829 100%)',
               border: '2px solid rgba(255,140,0,0.5)',
@@ -347,7 +454,7 @@ function App() {
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <span style={{ fontSize: '36px' }}>{currentStep.icon}</span>
+              <span style={{ fontSize: '32px' }}>{currentStep.icon}</span>
             </div>
           </div>
         )}
@@ -358,16 +465,16 @@ function App() {
           display: 'flex', 
           flexDirection: 'column', 
           alignItems: 'center',
-          padding: '16px',
+          padding: '8px 16px',
           textAlign: 'center',
-          overflowY: 'auto'
+          overflow: 'hidden'
         }}>
           {/* Title */}
           <h1 style={{ 
             color: '#FF8C00', 
-            fontSize: '24px', 
+            fontSize: '22px', 
             fontWeight: 900, 
-            marginBottom: '8px',
+            marginBottom: '6px',
             direction: language === 'he' ? 'rtl' : 'ltr'
           }}>
             {currentStep.title}
@@ -376,10 +483,10 @@ function App() {
           {/* Welcome Step Text */}
           {isFirstStep && (
             <div style={{ direction: language === 'he' ? 'rtl' : 'ltr' }}>
-              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '16px', marginBottom: '6px' }}>
+              <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '15px', marginBottom: '4px' }}>
                 {currentStep.subtitle}
               </p>
-              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', maxWidth: '280px' }}>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', maxWidth: '280px' }}>
                 {currentStep.description}
               </p>
             </div>
@@ -387,7 +494,7 @@ function App() {
 
           {/* Form Steps */}
           {currentStep.fields && (
-            <div style={{ width: '100%', maxWidth: '320px', marginTop: '12px', direction: language === 'he' ? 'rtl' : 'ltr' }}>
+            <div style={{ width: '100%', maxWidth: '320px', marginTop: '8px', direction: language === 'he' ? 'rtl' : 'ltr' }}>
               {currentStep.fields.map((field, index) => (
                 <input
                   key={`${onboardingStep}-${field}`}
@@ -398,13 +505,13 @@ function App() {
                   placeholder={fieldLabels[language][field]}
                   style={{
                     width: '100%',
-                    padding: '14px',
-                    borderRadius: '12px',
-                    fontSize: '16px',
+                    padding: '12px',
+                    borderRadius: '10px',
+                    fontSize: '15px',
                     background: 'rgba(255,255,255,0.05)',
                     border: '1px solid rgba(255,140,0,0.3)',
                     color: 'white',
-                    marginBottom: '10px',
+                    marginBottom: '8px',
                     outline: 'none'
                   }}
                 />
@@ -414,17 +521,17 @@ function App() {
         </div>
 
         {/* Buttons - Fixed at Bottom */}
-        <div style={{ padding: '16px', paddingBottom: '20px' }}>
+        <div style={{ padding: '12px 16px', paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}>
           <button
             onClick={handleNext}
             style={{
               width: '100%',
-              padding: '14px',
-              borderRadius: '12px',
+              padding: '12px',
+              borderRadius: '10px',
               fontWeight: 700,
-              fontSize: '16px',
+              fontSize: '15px',
               background: 'linear-gradient(135deg, #FF8C00 0%, #e67e00 100%)',
-              boxShadow: '0 0 25px rgba(255,140,0,0.4)',
+              boxShadow: '0 0 20px rgba(255,140,0,0.4)',
               color: '#0d1829',
               border: 'none',
               cursor: 'pointer'
@@ -441,12 +548,12 @@ function App() {
               onClick={handleSkip}
               style={{ 
                 width: '100%',
-                padding: '10px',
-                marginTop: '8px',
+                padding: '8px',
+                marginTop: '6px',
                 background: 'none',
                 border: 'none',
                 color: 'rgba(255,140,0,0.6)',
-                fontSize: '13px',
+                fontSize: '12px',
                 cursor: 'pointer'
               }}
             >

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/logo-sos.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#0d1829" />
     <meta name="description" content="SOS Click - כרטיס מידע רפואי לחירום. נגיש ממסך הנעילה." />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -22,7 +22,17 @@
     
     <style>
       /* Prevent flash of unstyled content */
-      body { background: #0d1829; }
+      * { box-sizing: border-box; }
+      html, body, #root { 
+        height: 100%; 
+        margin: 0; 
+        padding: 0;
+        overflow: hidden;
+      }
+      body { 
+        background: #0d1829; 
+        -webkit-overflow-scrolling: touch;
+      }
     </style>
   </head>
   <body>
