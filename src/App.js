@@ -1074,16 +1074,16 @@ function App() {
 
   return (
     <div className="w-full min-h-screen" style={{ background: '#0d1829' }}>
-      {/* Mobile Container */}
-      <div className="max-w-md mx-auto min-h-screen relative" style={{
+      {/* Mobile Container - Centered */}
+      <div className="mx-auto max-w-md min-h-screen relative" style={{
         background: '#0d1829',
-        boxShadow: '0 0 60px rgba(0,0,0,0.5)'
+        boxShadow: '0 0 60px rgba(255,140,0,0.15)'
       }}>
         {menuOpen && <MenuScreen />}
         {renderScreen()}
         
         {!menuOpen && !['onboarding', 'edit-profile', 'contacts', 'languages', 'settings', 'help'].includes(currentScreen) && (
-          <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto flex justify-around py-3 sm:py-4 px-4 sm:px-6 z-40" style={{
+          <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md flex justify-around py-3 sm:py-4 px-4 sm:px-6 z-40" style={{
             background: 'linear-gradient(180deg, rgba(10,22,40,0.95) 0%, #0a1628 100%)',
             borderTop: '1px solid rgba(255,140,0,0.2)',
             backdropFilter: 'blur(10px)'
