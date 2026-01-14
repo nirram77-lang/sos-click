@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Phone, User, Settings, MapPin, Menu, X, ChevronRight, Edit, Trash2, Plus, Save, Camera, Check, Globe, HelpCircle, Heart, AlertTriangle, Pill } from 'lucide-react';
+import { Phone, User, Settings, MapPin, X, ChevronRight, Trash2, Plus, Save, Camera, Check, Globe, HelpCircle } from 'lucide-react';
 
 // Database simulation with localStorage
 const useDatabase = () => {
