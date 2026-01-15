@@ -1550,14 +1550,12 @@ function App() {
               if (window.confirm(language === 'he' 
                 ? 'האם אתה בטוח שברצונך למחוק את החשבון? כל המידע יימחק לצמיתות!' 
                 : 'Are you sure you want to delete your account? All data will be permanently deleted!')) {
-                // Clear all localStorage
                 localStorage.removeItem('sos_onboarding_complete');
                 localStorage.removeItem('sos_profile');
                 localStorage.removeItem('sos_contacts');
                 localStorage.removeItem('sos_settings');
                 localStorage.removeItem('sos_premium');
                 localStorage.removeItem('sos_profile_image');
-                // Reset state
                 setProfile({ name: '', age: '', bloodType: '', chronicDiseases: '', allergies: '', medications: '' });
                 setContacts([]);
                 setOnboardingComplete(false);
